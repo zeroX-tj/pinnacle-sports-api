@@ -1,0 +1,33 @@
+{
+  "name": "pinnacle-sports-api",
+  "version": "1.0.0",
+  "description": "Pinnacle Sports API",
+  "main": "pinnacleAPI.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sbefort/pinnacle-sports-api.git"
+  },
+  "keywords": [
+    "pinnacle",
+    "sports",
+    "api",
+    "odds"
+  ],
+  "author": "Shaun Befort",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sbefort/pinnacle-sports-api/issues"
+  },
+  "homepage": "https://github.com/sbefort/pinnacle-sports-api#readme",
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "lodash": "^4.11.1",
+    "qs": "^6.1.0",
+    "request": "^2.72.0"
+  }
+}
