@@ -26,11 +26,13 @@ var PinnacleAPI = function(username, password) {
 
 	var checkRequired = (function(options) {
 		var required = operations[this.operation].required;
-		required.forEach((function(key) {
-			if (_.isUndefined(options[key])) {
-				throw new Error('The ' + this.operation + ' operation requires the following request data: {' + required.join(', ') + '}.');
-			}
-		}).bind(this));
+		if (required) {
+			required.forEach((function(key) {
+				if (_.isUndefined(options[key])) {
+					throw new Error('The ' + this.operation + ' operation requires the following request data: {' + required.join(', ') + '}.');
+				}
+			}).bind(this));
+		}
 	}).bind(this);
 
 	var get = (function(options, cb) {
@@ -40,11 +42,13 @@ var PinnacleAPI = function(username, password) {
 				'Authorization': auth
 			}
 		};
-
 		request.get(requestOptions, (function (err, response, body) {
 			if (err) return cb(err);
 			if (!body || _.isEmpty(JSON.parse(body))) return cb(null, '');
-			parse(body, cb);
+			parse(body, function(err, parsed) {
+				if (err) return cb(err);
+				cb(null, response, parsed);
+			});
 		}).bind(this));
 	}).bind(this);
 
@@ -77,20 +81,37 @@ var PinnacleAPI = function(username, password) {
 	}
 
 	this.getFixtures = function(options, cb) {
-		this.operation = 'getFixtures';
-		this.url = buildUrl(this.operation);
+		setOperation('getFixtures');
+		buildUrl();
+		checkRequired(options, cb);
 		get(options, cb);
 	}
 
-	this.getFixturesSettled = function(options, cb) {
-		this.operation = 'getFixturesSettled';
-		this.url = buildUrl(this.operation);
+	this.getSettledFixtures = function(options, cb) {
+		this.operation = 'getSettledFixtures';
+		buildUrl();
+		checkRequired(options, cb);
 		get(options, cb);
 	}
 
 	this.getTeaserGroups = function(options, cb) {
 		this.operation = 'getTeaserGroups';
-		this.url = buildUrl(this.operation);
+		buildUrl();
+		checkRequired(options, cb);
+		get(options, cb);
+	}
+
+	this.getOdds = function(options, cb) {
+		this.operation = 'getOdds';
+		buildUrl();
+		checkRequired(options, cb);
+		get(options, cb);
+	}
+
+	this.getCurrencies = function(options, cb) {
+		this.operation = 'getCurrencies';
+		buildUrl();
+		checkRequired(options, cb);
 		get(options, cb);
 	}
 }
