@@ -9,11 +9,15 @@ Please note that you must have a funded account at www.pinnaclesports.com for th
 
 ## Examples
 
-#### Require and initialize the module
+#### Require and Initialize the Module
 ```
 var pinnacleAPI = require('pinnacle-sports-api');
 var pinnacle = new pinnacleAPI('<your-username>', '<your-password>');
 ```
+
+#### Optionally Set to a Development Environment
+If you would like mock data instead of real, live data from the API (for example, if you have a USA IP address on your local machine), you can set the module to a development environment.  It will only call mock URLs and return mock data when this is set.
+`pinnacle.setEnvironmentDev();`
 
 #### Get Sports
 ````
