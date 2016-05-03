@@ -16,8 +16,10 @@ var pinnacle = new pinnacleAPI('<your-username>', '<your-password>');
 ```
 
 #### Optionally Set to a Development Environment
-If you would like mock data instead of real, live data from the API (for example, if you have a USA IP address on your local machine), you can set the module to a development environment.  It will only call mock URLs and return mock data when this is set.
-`pinnacle.setEnvironmentDev();`
+If you would like mock data instead of real, live data from the API (for example, if you have a USA IP address on your local machine and cannot access the live API), you can set the module to a development environment.  It will only call mock URLs and return mock data when this is set.
+````
+pinnacle.setEnvironmentDev();
+````
 
 #### Get Sports
 ````
