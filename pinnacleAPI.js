@@ -20,7 +20,7 @@ var PinnacleAPI = function(username, password) {
 			this.url = operations[this.operation].devUrl;
 		}
 		else {
-			this.url = 'https://api.pinnaclesports.com/' + operations[this.operation].version + '/' + operations[this.operation].endpoint;
+			this.url = 'https://api.pinnacle.com/' + operations[this.operation].version + '/' + operations[this.operation].endpoint;
 		}
 	}).bind(this);
 

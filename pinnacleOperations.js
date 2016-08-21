@@ -40,7 +40,7 @@ var operations = {
 		version: 'v1',
 		endpoint: 'odds',
 		required: ['sportId'],
-		devUrl: 'http://www.mocky.io/v2/5726d468100000252f6dd6ab'
+		devUrl: 'http://www.mocky.io/v2/57ba024b0f00004b1dfcc923'
 	},
 	getParlayOdds: {
 		type: 'get',
