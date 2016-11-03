@@ -20,7 +20,7 @@ var PinnacleAPI = function(username, password) {
 			this.url = operations[this.operation].devUrl;
 		}
 		else {
-			this.url = 'http://api.pinnacle.com/' + operations[this.operation].version + '/' + operations[this.operation].endpoint;
+			this.url = 'https://api.pinnacle.com/' + operations[this.operation].version + '/' + operations[this.operation].endpoint;
 		}
 	}).bind(this);
 
@@ -38,6 +38,7 @@ var PinnacleAPI = function(username, password) {
 	var get = (function(options, cb) {
 		var requestOptions = {
 			url: this.url + '?' + qs.stringify(options),
+			rejectUnauthorized: false,
 			headers: {
 				'Authorization': auth
 			}

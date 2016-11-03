@@ -1,6 +1,6 @@
 {
   "name": "pinnacle-sports-api",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Pinnacle Sports API",
   "main": "pinnacleAPI.js",
   "scripts": {
