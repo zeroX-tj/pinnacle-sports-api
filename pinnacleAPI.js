@@ -169,6 +169,12 @@ var PinnacleAPI = function(username, password, postProxy) {
         checkRequired(options, operation, cb);
         post(options, operation, cb);
     }
+
+    this.getLine = function(options, cb){
+        var operation = "getLine";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb);
+    }
 }
 
 module.exports = PinnacleAPI;
