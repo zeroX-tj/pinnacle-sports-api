@@ -23,11 +23,11 @@
   },
   "homepage": "https://github.com/sbefort/pinnacle-sports-api#readme",
   "devDependencies": {
-    "mocha": "^2.4.5"
+    "mocha": "^2.5.3"
   },
   "dependencies": {
     "axios": "^0.16.2",
-    "lodash": "^4.11.1",
-    "qs": "^6.1.0"
+    "lodash": "^4.17.4",
+    "qs": "^6.5.0"
   }
 }
