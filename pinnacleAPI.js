@@ -53,11 +53,16 @@ var PinnacleAPI = function(username, password) {
 		};
 		axios.get(url, axiosConfig)
 		.then((response) => {
-			if (!response.data || _.isEmpty(JSON.parse(response.data))) return cb(null, '');
+			// console.log(response.data);
+			//if (!response.data) return cb(null, '');
+			//if (!response.data || _.isEmpty(JSON.parse(response.data))) return cb(null, '');
+			/*
 			parse(response.data, (err, parsed) => {
 				if (err) return cb(err);
 				cb(null, parsed);
 			});
+			*/
+			cb(null, response);
 		})
 		.catch((err) => {
 			return cb(err);
