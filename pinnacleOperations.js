@@ -71,7 +71,7 @@ var operations = {
 	getLine: {
 		version: 'v1',
 		endpoint: 'line',
-		required: ['sportId', 'leagueid', 'eventid', 'periodNumber', 'betType', 'oddsFormat'],
+		required: ['sportId', 'leagueId', 'eventId', 'periodNumber', 'betType', 'oddsFormat'],
 		devUrl: 'http://www.mocky.io/v2/57280237120000e90cc05a2f'
 	},
 	getParlayLines: {
