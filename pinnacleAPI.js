@@ -1,126 +1,174 @@
 'use strict';
 
 var _ = require('lodash');
-var axios = require('axios');
+var request = require('request');
 var qs = require('qs');
 var operations = require('./pinnacleOperations');
 
-var PinnacleAPI = function(username, password) {
-	if (!username || !password){
-		throw new Error('No username and/or password provided in createClient().');
-	}
-	// var auth = 'Basic ' + new Buffer(username + ':' + password).toString('base64');
+var PinnacleAPI = function(username, password, postProxy) {
+    if(!username || !password){
+        throw new Error('No username and/or password provided in createClient().');
+    }
 
-	var setOperation = (function(operation){
-		this.operation = operation;
-	}).bind(this);
+    var auth = 'Basic ' + new Buffer(username + ':' + password).toString('base64');
 
-	var buildUrl = (function() {
-		if (this.environment === 'development') {
-			this.url = operations[this.operation].devUrl;
-		} else {
-			this.url = 'https://api.pinnacle.com/' + operations[this.operation].version + '/' + operations[this.operation].endpoint;
-		}
-	}).bind(this);
+    var buildUrl = (function(operation) {
+        if (this.environment === 'development') {
+            return operations[operation].devUrl;
+        }
+        else {
+            return 'https://api.pinnacle.com/' + operations[operation].version + '/' + operations[operation].endpoint;
+        }
+    }).bind(this);
 
-	var checkRequired = (function(options) {
-		var required = operations[this.operation].required;
-		if (required) {
-			required.forEach((function(key) {
-				if (_.isUndefined(options[key])) {
-					throw new Error('The ' + this.operation + ' operation requires the following request data: {' + required.join(', ') + '}.');
-				}
-			}).bind(this));
-		}
-	}).bind(this);
+    var checkRequired = (function(options, operation) {
+        var required = operations[operation].required;
+        if (required) {
+            required.forEach((function(key) {
+                if (_.isUndefined(options[key])) {
+                    throw new Error('The ' + operation + ' operation requires the following request data: {' + required.join(', ') + '}.');
+                }
+            }).bind(this));
+        }
+    }).bind(this);
 
-	var parse = function(body, cb) {
-		try {
-			var result = JSON.parse(body);
-			return cb(null, result);
-		} catch (e) {
-			return cb(e + ', Data: ' + body);
-		}
-	};
+    var get = (function(options, operation, cb, filterField) {
+    	var url = buildUrl(operation);
+        var requestOptions = {
+            url: url + '?' + qs.stringify(options),
+            rejectUnauthorized: false,
+            headers: {
+                'Authorization': auth
+            }
+        };
+        request.get(requestOptions, (function (err, response, body) {
+            if (err) return cb(err);
+            if (!body || _.isEmpty(JSON.parse(body))) return cb(null, '');
+            parse(body, function(err, parsed) {
+                if (err) return cb(err);
+                if (filterField && parsed[filterField]) {
+                	cb(null, response, parsed[filterField]);
+				} else {
+                	cb(null, response, parsed);
+                }
+            });
+        }).bind(this));
+    }).bind(this);
 
-	var get = ((options, cb) => {
-		var url = this.url + '?' + qs.stringify(options);
-		var axiosConfig = {
-			auth: {
-				username,
-				password
-			}
-		};
-		axios.get(url, axiosConfig)
-		.then((response) => {
-			// console.log(response.data);
-			//if (!response.data) return cb(null, '');
-			//if (!response.data || _.isEmpty(JSON.parse(response.data))) return cb(null, '');
-			/*
-			parse(response.data, (err, parsed) => {
-				if (err) return cb(err);
-				cb(null, parsed);
-			});
-			*/
-			cb(null, response);
-		})
-		.catch((err) => {
-			return cb(err);
-		});
-	});
+    var post = (function(options, operation, cb, filterField) {
+        var url = buildUrl(operation);
+        var proxy;
+        var requestOptions = {
+            url: url + '?' + qs.stringify(options),
+            proxy: postProxy,
+            rejectUnauthorized: false,
+            headers: {
+                'Authorization': auth
+            }
+        };
+        request.post(requestOptions, (function (err, response, body) {
+            if (err) return cb(err);
+            if (!body || _.isEmpty(JSON.parse(body))) return cb(null, '');
+            parse(body, function(err, parsed) {
+                if (err) return cb(err);
+                if (filterField && parsed[filterField]) {
+                    cb(null, response, parsed[filterField]);
+                } else {
+                    cb(null, response, parsed);
+                }
+            });
+        }).bind(this));
+    }).bind(this);
 
-	this.setEnvironmentDev = function(){
-		this.environment = 'development';
-	};
+    var parse = function(body, cb) {
+		var result;
+		var error;
 
-	this.getSports = function(cb) {
-		var options = {};
-		setOperation('getSports');
-		buildUrl();
-		get(options, cb);
-	};
+        try {
+            result = JSON.parse(body);
+        }
+        catch(e){
+            error = e + ', Data: ' + body
+        }
 
-	this.getLeagues = function(options, cb) {
-		setOperation('getLeagues');
-		buildUrl();
-		checkRequired(options, cb);
-		get(options, cb);
-	};
+        cb(error, result);
+    }
 
-	this.getFixtures = function(options, cb) {
-		setOperation('getFixtures');
-		buildUrl();
-		checkRequired(options, cb);
-		get(options, cb);
-	};
+    this.setEnvironmentDev = function(){
+        this.environment = 'development';
+    }
 
-	this.getSettledFixtures = function(options, cb) {
-		this.operation = 'getSettledFixtures';
-		buildUrl();
-		checkRequired(options, cb);
-		get(options, cb);
-	};
+    this.getSports = function(cb) {
+        var options = {};
+        var operation = "getSports";
+        get(options, operation, cb, "leagues");
+    }
 
-	this.getTeaserGroups = function(options, cb) {
-		this.operation = 'getTeaserGroups';
-		buildUrl();
-		checkRequired(options, cb);
-		get(options, cb);
-	};
+    this.getLeagues = function(options, cb) {
+        var operation = "getLeagues";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb, "leagues");
+    }
 
-	this.getOdds = function(options, cb) {
-		this.operation = 'getOdds';
-		buildUrl();
-		checkRequired(options, cb);
-		get(options, cb);
-	};
+    this.getFixtures = function(options, cb) {
+        var operation = "getFixtures";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb, "fixtures");
+    }
 
-	this.getCurrencies = function(options, cb) {
-		this.operation = 'getCurrencies';
-		buildUrl();
-		checkRequired(options, cb);
-		get(options, cb);
-	};
-};
+    this.getSpecialFixtures = function(options, cb) {
+    	var operation = "getSpecialFixtures";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb, "specialFixtures");
+    }
+
+    this.getSettledFixtures = function(options, cb) {
+        var operation = "getSettledFixtures";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb);
+    }
+
+    this.getTeaserGroups = function(options, cb) {
+        var operation = "getTeaserGroups";
+        checkRequired(options, "getTeaserGroups", cb);
+        get(options, "getTeaserGroups", cb);
+    }
+
+    this.getOdds = function(options, cb) {
+        var operation = "getOdds";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb);
+    }
+
+    this.getSpecialOdds = function(options, cb) {
+        var operation = "getSpecialOdds";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb);
+    }
+
+    this.getCurrencies = function(options, cb) {
+        var operation = "getCurrencies";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb, "currencies");
+    }
+
+    this.getClientBalance = function(options, cb) {
+        var operation = "getClientBalance";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb);
+    }
+
+    this.getSettled = function(options, cb) {
+        var operation = "getSettledFixtures";
+        checkRequired(options, operation, cb);
+        get(options, operation, cb);
+    }
+
+    this.placeBet = function(options, cb){
+        var operation = "placeBet";
+        checkRequired(options, operation, cb);
+        post(options, operation, cb);
+    }
+}
 
 module.exports = PinnacleAPI;
