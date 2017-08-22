@@ -64,7 +64,7 @@ var PinnacleAPI = function(username, password, postProxy) {
 
         var requestOptions = {
             url: url,
-            body: JSON.stringify(options),
+            json: options,
             proxy: postProxy,
             rejectUnauthorized: false,
             headers: {
