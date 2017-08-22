@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var request = require('request');
-var qs = require('qs');
+var qs = require('querystring');
 var operations = require('./pinnacleOperations');
 var uuid = require("node-uuid");
 
