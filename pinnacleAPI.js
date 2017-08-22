@@ -4,6 +4,7 @@ var _ = require('lodash');
 var request = require('request');
 var qs = require('qs');
 var operations = require('./pinnacleOperations');
+var uuid = require("node-uuid");
 
 var PinnacleAPI = function(username, password, postProxy) {
     if(!username || !password){
@@ -57,9 +58,13 @@ var PinnacleAPI = function(username, password, postProxy) {
 
     var post = (function(options, operation, cb, filterField) {
         var url = buildUrl(operation);
-        var proxy;
+        if (options && options.uniqueRequestId == undefined) {
+            options.uniqueRequestId = uuid.v4();
+        }
+
         var requestOptions = {
-            url: url + '?' + qs.stringify(options),
+            url: url,
+            body: JSON.stringify(options),
             proxy: postProxy,
             rejectUnauthorized: false,
             headers: {
@@ -68,15 +73,8 @@ var PinnacleAPI = function(username, password, postProxy) {
         };
         request.post(requestOptions, (function (err, response, body) {
             if (err) return cb(err);
-            if (!body || _.isEmpty(JSON.parse(body))) return cb(null, '');
-            parse(body, function(err, parsed) {
-                if (err) return cb(err);
-                if (filterField && parsed[filterField]) {
-                    cb(null, response, parsed[filterField]);
-                } else {
-                    cb(null, response, parsed);
-                }
-            });
+            if (!body) return cb(null, '');
+            cb(null, response, body);
         }).bind(this));
     }).bind(this);
 
